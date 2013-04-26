@@ -69,6 +69,7 @@ D3DProxyDevice* D3DProxyDeviceFactory::Get(ProxyHelper::ProxyConfig& config, IDi
 		newDev = new D3DProxyDevice(dev);
 		break;
 	}
+//		newDev = new D3DProxyDeviceTest(dev);
 
 	newDev->Init(config);
 

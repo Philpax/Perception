@@ -89,6 +89,7 @@ void D3DProxyDevice::SetupOptions(ProxyHelper::ProxyConfig& cfg)
 	stereoView->SwapEyes(swap_eyes);// why are there two swap_eyes
 	centerlineL = cfg.centerlineL;
 	centerlineR = cfg.centerlineR;
+	keybinds.LoadXML();
 
 	saveDebugFile = false;
 	trackerInitialized = false;
@@ -164,7 +165,19 @@ void D3DProxyDevice::HandleControls()
 	if(keyWaitCount<0)
 		keyWaitCount=0;
 
-	if(KEY_DOWN(VK_NUMPAD0))		// turn on/off stereo3D
+//	if(KEY_DOWN(VK_NUMPAD0))		// turn on/off stereo3D
+//	{
+//		if(keyWaitCount <= 0)
+//		{
+//			if(stereoView->stereoEnabled)
+//				stereoView->stereoEnabled = false;
+//			else
+//				stereoView->stereoEnabled = true;
+//			keyWaitCount = 50;
+//		}
+//	}
+
+	if(keybinds.CommandPressed(KeyBindings::STEREO_ENABLED_T))		// turn on/off stereo3D
 	{
 		if(keyWaitCount <= 0)
 		{
@@ -176,34 +189,34 @@ void D3DProxyDevice::HandleControls()
 		}
 	}
 
-//////////  SHOCT non numpad
-	if(KEY_DOWN(0x4F))// VK_KEY_O
+//////////  SHOCT
+	if(keybinds.CommandPressed(KeyBindings::SHOCT_L_DEC))
 	{
 		centerlineL  -= keySpeed/2.0f;
 		saveWaitCount = 500;
 		doSaveNext = true;
 	}
-	if(KEY_DOWN(0x50))// VK_KEY_P
+	if(keybinds.CommandPressed(KeyBindings::SHOCT_L_INC))
 	{
 		centerlineL  += keySpeed/2.0f;
 		saveWaitCount = 500;
 		doSaveNext = true;
 	}
 
-	if(KEY_DOWN(0x4B))//VK_KEY_K
+	if(keybinds.CommandPressed(KeyBindings::SHOCT_R_DEC))
 	{
 		centerlineR  -= keySpeed/2.0f;
 		saveWaitCount = 500;
 		doSaveNext = true;
 	}
-	if(KEY_DOWN(0x4C))//VK_KEY_L
+	if(keybinds.CommandPressed(KeyBindings::SHOCT_R_INC))
 	{
 		centerlineR  += keySpeed/2.0f;
 		saveWaitCount = 500;
 		doSaveNext = true;
 	}
 
-	if(KEY_DOWN(0x49) && KEY_DOWN(VK_CONTROL))//VK_KEY_I		// Schneider-Hicks VR Calibration Tool
+	if(keybinds.CommandPressed(KeyBindings::SHOCT_MODE_T))
 	{
 		if(keyWaitCount <= 0)
 		{
@@ -222,135 +235,80 @@ void D3DProxyDevice::HandleControls()
 		}
 	}
 //////////
-
-//////////  SHOCT numpad
-	if(KEY_DOWN(VK_NUMPAD1))
+	if(keybinds.CommandPressed(KeyBindings::SCREEN_OFFSET_INC))
 	{
-		centerlineL  -= keySpeed/2.0f;
-		saveWaitCount = 500;
-		doSaveNext = true;
+		stereoView->LensShift[0] += keySpeed;
 	}
-	if(KEY_DOWN(VK_NUMPAD2))
+	if(keybinds.CommandPressed(KeyBindings::SCREEN_OFFSET_DEC))
 	{
-		centerlineL  += keySpeed/2.0f;
-		saveWaitCount = 500;
-		doSaveNext = true;
+		stereoView->LensShift[0] -= keySpeed;
 	}
 
-	if(KEY_DOWN(VK_NUMPAD4))
-	{
-		centerlineR  -= keySpeed/2.0f;
-		saveWaitCount = 500;
-		doSaveNext = true;
-	}
-	if(KEY_DOWN(VK_NUMPAD5))
-	{
-		centerlineR  += keySpeed/2.0f;
-		saveWaitCount = 500;
-		doSaveNext = true;
-	}
-
-	if(KEY_DOWN(VK_MULTIPLY) && KEY_DOWN(VK_SHIFT))		// Schneider-Hicks VR Calibration Tool
-	{
-		if(keyWaitCount <= 0)
-		{
-			SHOCT_mode++;
-			SHOCT_mode %= 3;
-			if(SHOCT_mode == 0){//off
-				trackingOn = true;
-			}
-			if(SHOCT_mode == 1){// seperation
-				trackingOn = false;
-			}
-			if(SHOCT_mode == 2){// convergence
-				trackingOn = false;
-			}
-			keyWaitCount = 50;
-		}
-	}
-//////////
-
-	if(KEY_DOWN(VK_F1))
+	if(keybinds.CommandPressed(KeyBindings::SAVE_SCREEN))
 	{
 		if(stereoView->initialized)
-		{
 			stereoView->SaveScreen();
-		}
 	}
 
-	if(KEY_DOWN(VK_F2))
+	if(keybinds.CommandPressed(KeyBindings::OFFSET_INC))
 	{
-
-		if(KEY_DOWN(VK_SHIFT))
-		{
-			offset -= keySpeed;
-		} else 
-		{
-			separation -= keySpeed * 0.2f;
-			if(separation < 0)		// no negative seperation
-				separation = 0;
-		}
+		offset += keySpeed;
+		saveWaitCount = 500;
+		doSaveNext = true;
+	}
+	if(keybinds.CommandPressed(KeyBindings::OFFSET_DEC))
+	{
+		offset -= keySpeed;
 		saveWaitCount = 500;
 		doSaveNext = true;
 	}
 
-	if(KEY_DOWN(VK_F3))
+	if(keybinds.CommandPressed(KeyBindings::SEPARATION_INC))
 	{
-		if(KEY_DOWN(VK_SHIFT))
-		{
-			offset += keySpeed;
-		} 
-		else 
-		{
-			separation += keySpeed * 0.2f;
-		}
+		separation += keySpeed * 0.2f;
+		saveWaitCount = 500;
+		doSaveNext = true;
+	}
+	if(keybinds.CommandPressed(KeyBindings::SEPARATION_DEC))
+	{
+		separation -= keySpeed * 0.2f;
+		if(separation < 0)		// no negative seperation
+			separation = 0;
 		saveWaitCount = 500;
 		doSaveNext = true;
 	}
 
-	if(KEY_DOWN(VK_F4))
+	if(keybinds.CommandPressed(KeyBindings::DISTORTIONSCALE_INC))
 	{
-		if(KEY_DOWN(VK_SHIFT))
-		{
-			this->stereoView->DistortionScale  -= keySpeed*10;
-		} 
-		else 
-		{
-			convergence -= keySpeed2*10;
-		}
+		stereoView->DistortionScale  += keySpeed*10;
 		saveWaitCount = 500;
 		doSaveNext = true;
 	}
 
-	if(KEY_DOWN(VK_F5))
+	if(keybinds.CommandPressed(KeyBindings::DISTORTIONSCALE_DEC))
 	{
-		if(KEY_DOWN(VK_SHIFT))
-		{
-			this->stereoView->DistortionScale  += keySpeed*10;
-		} 
-		else 
-		{
-			convergence += keySpeed2*10;
-		}
+		stereoView->DistortionScale  -= keySpeed*10;
 		saveWaitCount = 500;
 		doSaveNext = true;
 	}
 
-	if(KEY_DOWN(VK_F6))
+
+	if(keybinds.CommandPressed(KeyBindings::CONVERGENCE_INC))
 	{
-		if(KEY_DOWN(VK_SHIFT))
-		{
-			separation = 0.0f;
-			convergence = 0.0f;
-			offset = 0.0f;
-			yaw_multiplier = 25.0f;
-			pitch_multiplier = 25.0f;
-			roll_multiplier = 1.0f;
-			//matrixIndex = 0;
-			saveWaitCount = 500;
-			doSaveNext = true;
-		}
-		else if(keyWaitCount <= 0)
+		convergence += keySpeed2*10;
+		saveWaitCount = 500;
+		doSaveNext = true;
+	}
+	if(keybinds.CommandPressed(KeyBindings::CONVERGENCE_DEC))
+	{
+		convergence -= keySpeed2*10;
+		saveWaitCount = 500;
+		doSaveNext = true;
+	}
+
+	if(keybinds.CommandPressed(KeyBindings::SWAP_EYES))
+	{
+		if(keyWaitCount <= 0)
 		{
 			swap_eyes = !swap_eyes;
 			stereoView->SwapEyes(swap_eyes);
@@ -359,61 +317,79 @@ void D3DProxyDevice::HandleControls()
 			doSaveNext = true;
 		}
 	}
+
+	if(keybinds.CommandPressed(KeyBindings::DEFAULT_VALUES))
+	{
+		separation = 0.0f;
+		convergence = 0.0f;
+		offset = 0.0f;
+		yaw_multiplier = 25.0f;
+		pitch_multiplier = 25.0f;
+		roll_multiplier = 1.0f;
+		//matrixIndex = 0;
+		saveWaitCount = 500;
+		doSaveNext = true;
+	}
 	
-	if(KEY_DOWN(VK_F7) && keyWaitCount <= 0)
+//	if(KEY_DOWN(VK_F7) && keyWaitCount <= 0)
+//	{
+//		matrixIndex++;
+//		if(matrixIndex > 15) 
+//		{
+//			matrixIndex = 0;
+//		}
+//		keyWaitCount = 200;
+//	}
+
+	if(keybinds.CommandPressed(KeyBindings::PITCH_MUL_INC))
 	{
-		matrixIndex++;
-		if(matrixIndex > 15) 
-		{
-			matrixIndex = 0;
-		}
-		keyWaitCount = 200;
-	}
-
-	if(KEY_DOWN(VK_F8))
-	{
-		if(KEY_DOWN(VK_SHIFT))
-		{
-			pitch_multiplier -= mouseSpeed;
-		}  
-		else if(KEY_DOWN(VK_CONTROL))
-		{
-			roll_multiplier -= rollSpeed;
-		}  
-		else 
-		{
-			yaw_multiplier -= mouseSpeed;
-		}
-
-		if(trackerInitialized && tracker->isAvailable())
-		{
-			tracker->setMultipliers(yaw_multiplier, pitch_multiplier, roll_multiplier);
-		}
-
+		pitch_multiplier += mouseSpeed;
 		saveWaitCount = 500;
 		doSaveNext = true;
-	}
-	if(KEY_DOWN(VK_F9))
-	{
-		if(KEY_DOWN(VK_SHIFT))
-		{
-			pitch_multiplier += mouseSpeed;
-		}  
-		else if(KEY_DOWN(VK_CONTROL))
-		{
-			roll_multiplier += rollSpeed;
-		}  
-		else 
-		{
-			yaw_multiplier += mouseSpeed;
-		}
-
 		if(trackerInitialized && tracker->isAvailable())
-		{
 			tracker->setMultipliers(yaw_multiplier, pitch_multiplier, roll_multiplier);
-		}
+	}
+	if(keybinds.CommandPressed(KeyBindings::PITCH_MUL_DEC))
+	{
+		pitch_multiplier -= mouseSpeed;
 		saveWaitCount = 500;
 		doSaveNext = true;
+		if(trackerInitialized && tracker->isAvailable())
+			tracker->setMultipliers(yaw_multiplier, pitch_multiplier, roll_multiplier);
+	}
+
+	if(keybinds.CommandPressed(KeyBindings::YAW_MUL_INC))
+	{
+		yaw_multiplier += mouseSpeed;
+		saveWaitCount = 500;
+		doSaveNext = true;
+		if(trackerInitialized && tracker->isAvailable())
+			tracker->setMultipliers(yaw_multiplier, pitch_multiplier, roll_multiplier);
+	}
+	if(keybinds.CommandPressed(KeyBindings::YAW_MUL_DEC))
+	{
+		yaw_multiplier -= mouseSpeed;
+		saveWaitCount = 500;
+		doSaveNext = true;
+		if(trackerInitialized && tracker->isAvailable())
+			tracker->setMultipliers(yaw_multiplier, pitch_multiplier, roll_multiplier);
+	}
+
+	if(keybinds.CommandPressed(KeyBindings::ROLL_MUL_INC))
+	{
+		roll_multiplier += mouseSpeed;
+		saveWaitCount = 500;
+		doSaveNext = true;
+		if(trackerInitialized && tracker->isAvailable())
+			tracker->setMultipliers(yaw_multiplier, pitch_multiplier, roll_multiplier);
+	}
+	if(keybinds.CommandPressed(KeyBindings::ROLL_MUL_DEC))
+	{
+		roll_multiplier -= mouseSpeed;
+		saveWaitCount = 500;
+		doSaveNext = true;
+		if(trackerInitialized && tracker->isAvailable())
+			tracker->setMultipliers(yaw_multiplier, pitch_multiplier, roll_multiplier);
 	}
 
 	if(saveDebugFile)
@@ -422,12 +398,12 @@ void D3DProxyDevice::HandleControls()
 	}
 	saveDebugFile = false;
 
-	if(KEY_DOWN(VK_F12) && keyWaitCount <= 0)
-	{
-		// uncomment to save text debug file
-		//saveDebugFile = true;
-		keyWaitCount = 200;
-	}
+//	if(KEY_DOWN(VK_F12) && keyWaitCount <= 0)
+//	{
+//		// uncomment to save text debug file
+//		//saveDebugFile = true;
+//		keyWaitCount = 200;
+//	}
 
 	if(doSaveNext && saveWaitCount < 0)
 	{

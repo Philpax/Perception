@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <profiles>
+  <profile game_name="Farcry 3" game_exe="farcry3.exe" game_type="500" separation="0.00357999" convergence="0" swap_eyes="false" yaw_multiplier="25" pitch_multiplier="25" roll_multiplier="1" />
   <profile game_name="Antichamber" game_exe="UDK.exe" game_type="200" separation="0.00357999" convergence="0" swap_eyes="false" yaw_multiplier="25" pitch_multiplier="25" roll_multiplier="1" />
-  <profile game_name="Dishonored" game_exe="Dishonored.exe" game_type="200" separation="0.00357999" convergence="0" swap_eyes="false" yaw_multiplier="25" pitch_multiplier="25" roll_multiplier="1" />
+	<profile game_name="Dishonored" game_exe="Dishonored.exe" game_type="200" separation="0.00357999" convergence="0" swap_eyes="false" yaw_multiplier="25" pitch_multiplier="25" roll_multiplier="1" />
 	<profile game_name="Left 4 Dead" game_exe="left4dead.exe" game_type="101" separation="0.00446002" convergence="25.3987" swap_eyes="false" yaw_multiplier="25" pitch_multiplier="25" roll_multiplier="1" />
 	<profile game_name="Left 4 Dead 2" game_exe="left4dead2.exe" game_type="101" separation="0.00652004" convergence="13.6903" swap_eyes="false" yaw_multiplier="25" pitch_multiplier="25" roll_multiplier="1" />
 	<profile game_name="Half Life 2" game_exe="hl2.exe" game_type="101" separation="0.0156001" convergence="0" swap_eyes="false" yaw_multiplier="25" pitch_multiplier="25" roll_multiplier="1" />
@@ -17,4 +18,8 @@
 	<profile game_name="Skyrim(SKSE)" game_exe="skse_1_9_32.dll" game_type="601" separation="0.00357999" convergence="0" swap_eyes="false" yaw_multiplier="25" pitch_multiplier="25" roll_multiplier="1" />
 	<profile game_name="Skyrim(SKSE)" game_exe="skse_steam_loader.dll" game_type="601" separation="0.00357999" convergence="0" swap_eyes="false" yaw_multiplier="25" pitch_multiplier="25" roll_multiplier="1" />
 	<profile game_name="test" game_exe="test.exe" game_type="501" separation="0.0211829" convergence="0" swap_eyes="false" yaw_multiplier="25" pitch_multiplier="25" roll_multiplier="1" />
+	<profile game_name="Dead Rising 2" game_exe="deadrising2.exe" game_type="10" separation="0.00282" convergence="0.025" swap_eyes="true" yaw_multiplier="27" pitch_multiplier="25" roll_multiplier="1" />
+	<profile game_name="Borderlands" game_exe="Borderlands.exe" game_type="202" separation="0.00282" convergence="0.025" swap_eyes="false" yaw_multiplier="27" pitch_multiplier="25" roll_multiplier="1" />
+	<profile game_name="LA Noire" game_exe="LANoire.exe" game_type="10" separation="0.00357999" convergence="0" swap_eyes="false" yaw_multiplier="25" pitch_multiplier="25" roll_multiplier="1" />
+	<profile game_name="Batman AC" game_exe="BatmanAC.exe" game_type="202" separation="0.00282" convergence="0.025" swap_eyes="false" yaw_multiplier="27" pitch_multiplier="25" roll_multiplier="1" />	
 </profiles>

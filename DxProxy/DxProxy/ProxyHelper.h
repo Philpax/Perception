@@ -41,6 +41,7 @@ public:
 	};
 
 	bool LoadConfig(ProxyConfig& config);
+	bool LoadUserConfig(ProxyConfig& config);
 	char* GetBaseDir();
 	char* GetTargetExe();
 	void GetPath(char* newFolder, char* path);
@@ -51,7 +52,6 @@ public:
 	bool SaveConfig(int mode = -1, float aspect = -1.0f);
 	bool SaveConfig2(int mode = -1);
 	bool SaveUserConfig(float centerlineL = 0.0f, float centerlineR = 0.0f);
-	bool LoadUserConfig(ProxyConfig& config);
 	bool GetConfig(int& mode, int& mode2);
 	bool GetProfile(char* name, ProxyConfig& config);
 	bool SaveProfile(float sep = 0.0f, float conv = 0.0f, bool swap_eyes = false, float yaw = 25.0f, float pitch = 25.0f, float roll = 1.0f);

@@ -107,6 +107,9 @@
     <ClCompile Include="OculusRiftView.cpp">
       <Filter>Stereo</Filter>
     </ClCompile>
+    <ClCompile Include="KeyBindings.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Exports.def">
@@ -189,6 +192,9 @@
     <ClInclude Include="OculusRiftView.h">
       <Filter>Stereo</Filter>
     </ClInclude>
+    <ClInclude Include="KeyBindings.h">
+      <Filter>Main</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\Release\Perception\cfg\profiles.xml">
@@ -240,6 +246,9 @@
       <Filter>fx</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\Release\Perception\cfg\users.xml">
+      <Filter>cfg</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\Release\Perception\cfg\keybindings.xml">
       <Filter>cfg</Filter>
     </CustomBuild>
   </ItemGroup>

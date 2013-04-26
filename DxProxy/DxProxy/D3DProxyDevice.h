@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ProxyHelper.h"
 #include "StereoView.h"
 #include "MotionTracker.h"
+#include "KeyBindings.h"
+
 #include <d3dx9.h>
 #include <stdio.h>
 #include <iostream>
@@ -42,7 +44,7 @@ public:
 	void SetupMatrices();
 	void ComputeViewTranslation();
 	void SetupText();
-	void HandleControls(void);
+	virtual void HandleControls(void);
 	void HandleTracking(void);
 	bool validRegister(UINT reg);
 	virtual HRESULT WINAPI EndScene();
@@ -95,6 +97,8 @@ public:
 	int SHOCT_mode;
 	float centerlineR;
 	float centerlineL;
+
+	KeyBindings keybinds;
 
 
 	static enum ProxyTypes

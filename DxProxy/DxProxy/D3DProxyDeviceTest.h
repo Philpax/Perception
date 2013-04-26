@@ -33,12 +33,86 @@ public:
 	virtual HRESULT WINAPI Present(CONST RECT* pSourceRect,CONST RECT* pDestRect,HWND hDestWindowOverride,CONST RGNDATA* pDirtyRegion);
 	virtual HRESULT WINAPI SetVertexShaderConstantF(UINT StartRegister,CONST float* pConstantData,UINT Vector4fCount);
 	//virtual HRESULT WINAPI SetDepthStencilSurface(IDirect3DSurface9* pNewZStencil);
-	//virtual HRESULT WINAPI SetTransform(D3DTRANSFORMSTATETYPE State,CONST D3DMATRIX* pMatrix);
+	virtual HRESULT WINAPI SetTransform(D3DTRANSFORMSTATETYPE State,CONST D3DMATRIX* pMatrix);
 
 	virtual void Init(ProxyHelper::ProxyConfig& cfg);
 	bool validRegister(UINT reg);
 	bool validVectorCount(UINT count);
 	int getMatrixIndex();
+
+
+	virtual void HandleControls();
+	void DisplayMethodsMenu();
+
+	bool menueDisplay;		// display the menu
+
+	int menueMethod;// which method the menu is displaying
+	int transformMethod;
+
+	int vertexShaderConstantFMethod;
+	int menueMethodItem;// which item the menu is displaying
+	bool validRegisters[256];
+	bool registersUsed[256];
+
+	// used for roll fix
+	virtual HRESULT WINAPI SetRenderTarget(DWORD RenderTargetIndex,IDirect3DSurface9* pRenderTarget);
+	virtual HRESULT WINAPI SetClipPlane(DWORD Index,CONST float* pPlane);
+	virtual HRESULT WINAPI SetViewport(CONST D3DVIEWPORT9* pViewport);
+	virtual HRESULT WINAPI CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS* pPresentationParameters,IDirect3DSwapChain9** pSwapChain);
+
+	IDirect3DSurface9* pCurrentRenderTarget;
+	int targets;
+	/*
+	SetPixelShaderConstantF 	Sets a floating-point shader constant.
+		vs_1_1
+				#
+			a0	1		address
+			c#	96		constant float
+			v#	16		input
+			r#	12		temp
+		vs_2_0
+			v#	16		input
+			r#	12		temp
+			c#	>256	constant float
+			a0	1		address
+			b#	16		constant bool
+			i#	16		constant int
+			aL	1		loop counter
+		vs_2_x
+			v#	16		input
+			r#	>12		temp
+			c#	>256	constant float
+			a0	1		address
+			b#	16		constant bool
+			i#	16		constant int
+			aL	1		loop counter
+			p0	1		Predicate 
+		vs_3_0
+			v#	16		input
+			r#	32		temp
+			c#	>256	constant float
+			a0	1		address
+			b#	16		constant bool
+			i#	16		constant int
+			aL	1		loop counter
+			p0	1		Predicate
+			s#	4		Sampler
+
+
+	SetTransform		Sets a single device transformation-related state.
+	SetVertexShaderConstantF	Sets a floating-point vertex shader constant.
+	SetVertexShader		need to parse shader looking for const matrix
+
+
+
+	SetViewport 	Sets the viewport parameters for the device.
+
+	MultiplyTransform 	Multiplies a device's world, view, or projection matrices by a specified matrix. 
+	SetDepthStencilSurface 	Sets the depth stencil surface.
+
+
+	*/
+
 };
 
 #endif
