@@ -23,7 +23,7 @@
   <binding command="ROLL_MUL_INC" vk="VK_F9" shift="false" ctrl="true" alt="false" />
   <binding command="ROLL_MUL_DEC" vk="VK_F8" shift="false" ctrl="true" alt="false" />
   
-  <binding command="STEREO_ENABLED_T" vk="VK_KEY_1" shift="false" ctrl="false" alt="false" />
+  <binding command="STEREO_ENABLED_T" vk="VK_NUMPAD0" shift="false" ctrl="false" alt="false" />
 
   <binding command="SHOCT_L_INC" vk="VK_KEY_P" shift="false" ctrl="false" alt="false" />
   <binding command="SHOCT_L_DEC" vk="VK_KEY_O" shift="false" ctrl="false" alt="false" />

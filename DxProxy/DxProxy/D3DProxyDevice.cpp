@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "StereoViewFactory.h"
 #include "MotionTrackerFactory.h"
 
+#include <sstream>							// for stringstream
+
 #pragma comment(lib, "d3dx9.lib")
 
 #define KEY_DOWN(vk_code) ((GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0)
@@ -30,10 +32,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 D3DProxyDevice::D3DProxyDevice(IDirect3DDevice9* pDevice):BaseDirect3DDevice9(pDevice)
 {
+	num_d3d++;
 	OutputDebugString("D3D ProxyDev Created\n");
 	hudFont = NULL;
 	centerlineR = 0.0f;
 	centerlineL = 0.0f;
+	lastInputTime = clock();
 }
 
 D3DProxyDevice::~D3DProxyDevice()
@@ -152,30 +156,27 @@ void D3DProxyDevice::SetupText()
 
 void D3DProxyDevice::HandleControls()
 {
-	float keySpeed = 0.00002f;
-	float keySpeed2 = 0.0005f;
-	float mouseSpeed = 0.25f;
-	float rollSpeed = 0.01f;
-	static int keyWaitCount = 0; 
-	keyWaitCount--;
-	static int saveWaitCount = 0; 
-	saveWaitCount--;
+	clock_t curTime;
+	curTime = clock();
+
+	elapsedTime = (double(curTime - lastInputTime)) / ((double)CLOCKS_PER_SEC);
+	lastInputTime = curTime;
+
+	float keySpeed = float(0.00002f * 2500.0f * elapsedTime);
+	float keySpeed2 = float(0.00002f * 6000.0f * elapsedTime);
+	float mouseSpeed = float(0.25f * 60.0f * elapsedTime);
+	float rollSpeed = float(0.01f * 60.0f * elapsedTime);
+
+	static float keyWaitCount = 0; 
+	keyWaitCount -= float(elapsedTime);
+	static float saveWaitCount = 0; 
+	saveWaitCount -= float(elapsedTime);
 	static bool doSaveNext = false;
 
-	if(keyWaitCount<0)
-		keyWaitCount=0;
-
-//	if(KEY_DOWN(VK_NUMPAD0))		// turn on/off stereo3D
-//	{
-//		if(keyWaitCount <= 0)
-//		{
-//			if(stereoView->stereoEnabled)
-//				stereoView->stereoEnabled = false;
-//			else
-//				stereoView->stereoEnabled = true;
-//			keyWaitCount = 50;
-//		}
-//	}
+	if(keyWaitCount < 0)
+		keyWaitCount = 0.0f;
+	if(saveWaitCount < 0)
+		saveWaitCount = 0.0f;
 
 	if(keybinds.CommandPressed(KeyBindings::STEREO_ENABLED_T))		// turn on/off stereo3D
 	{
@@ -185,33 +186,33 @@ void D3DProxyDevice::HandleControls()
 				stereoView->stereoEnabled = false;
 			else
 				stereoView->stereoEnabled = true;
-			keyWaitCount = 50;
+			keyWaitCount = 0.25f;
 		}
 	}
 
 //////////  SHOCT
 	if(keybinds.CommandPressed(KeyBindings::SHOCT_L_DEC))
 	{
-		centerlineL  -= keySpeed/2.0f;
+		centerlineL  -= keySpeed2;
 		saveWaitCount = 500;
 		doSaveNext = true;
 	}
 	if(keybinds.CommandPressed(KeyBindings::SHOCT_L_INC))
 	{
-		centerlineL  += keySpeed/2.0f;
+		centerlineL  += keySpeed2;
 		saveWaitCount = 500;
 		doSaveNext = true;
 	}
 
 	if(keybinds.CommandPressed(KeyBindings::SHOCT_R_DEC))
 	{
-		centerlineR  -= keySpeed/2.0f;
+		centerlineR  -= keySpeed2;
 		saveWaitCount = 500;
 		doSaveNext = true;
 	}
 	if(keybinds.CommandPressed(KeyBindings::SHOCT_R_INC))
 	{
-		centerlineR  += keySpeed/2.0f;
+		centerlineR  += keySpeed2;
 		saveWaitCount = 500;
 		doSaveNext = true;
 	}
@@ -231,7 +232,7 @@ void D3DProxyDevice::HandleControls()
 			if(SHOCT_mode == 2){// convergence
 				trackingOn = false;
 			}
-			keyWaitCount = 50;
+			keyWaitCount = 0.25f;
 		}
 	}
 //////////
@@ -312,7 +313,7 @@ void D3DProxyDevice::HandleControls()
 		{
 			swap_eyes = !swap_eyes;
 			stereoView->SwapEyes(swap_eyes);
-			keyWaitCount = 200;
+			keyWaitCount = 0.25f;
 			saveWaitCount = 500;
 			doSaveNext = true;
 		}
@@ -466,6 +467,11 @@ HRESULT WINAPI D3DProxyDevice::EndScene()
 ///// hud text
 	if(hudFont == NULL)
 		SetupText();
+
+//	RECT rec2 = {255,10,800,800};
+//	std::stringstream ss;
+//	ss << elapsedTime << "asd:" << num_d3d;
+//	hudFont->DrawText(NULL, ss.str().c_str(), -1, &rec2, 0, D3DCOLOR_ARGB(255,255,255,255));
 
 	if(hudFont && SHOCT_mode !=0) {
 		char vcString[512];

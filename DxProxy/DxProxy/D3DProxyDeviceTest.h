@@ -48,6 +48,7 @@ public:
 
 	int menueMethod;// which method the menu is displaying
 	int transformMethod;
+	bool transpose;
 
 	int vertexShaderConstantFMethod;
 	int menueMethodItem;// which item the menu is displaying

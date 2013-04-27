@@ -34,6 +34,7 @@ D3DProxyDeviceTest::D3DProxyDeviceTest(IDirect3DDevice9* pDevice):D3DProxyDevice
 	transformMethod = 0;
 	vertexShaderConstantFMethod = 0;
 	menueMethodItem = 0;
+	transpose = 0;
 
 	for(int i =0; i < sizeof(registersUsed); i++) {
 		registersUsed[i] = false;
@@ -42,9 +43,11 @@ D3DProxyDeviceTest::D3DProxyDeviceTest(IDirect3DDevice9* pDevice):D3DProxyDevice
 	for(int i =0; i < sizeof(validRegisters); i++) {
 		validRegisters[i] = false;
 	}
-	validRegisters[0] = true;
-	validRegisters[4] = true;
-	validRegisters[16] = true;
+
+//farcry3
+//	validRegisters[0] = true;
+//	validRegisters[4] = true;
+//	validRegisters[16] = true;
 
 	pCurrentRenderTarget = NULL;
 	targets = 0;
@@ -114,6 +117,22 @@ void D3DProxyDeviceTest::DisplayMethodsMenu()
 	RECT rec2 = {255,10,800,800};
 
 	std::stringstream ss;
+	ss << "transpose:" << transpose << "\n";;
+
+
+	/////
+	ss << "shaderList: " << shaderList.size() << "\n";
+   for( std::map<intptr_t,ShaderRegisterMap>::iterator ii=shaderList.begin(); ii!=shaderList.end(); ++ii)
+   {
+	   ss << "   " << (*ii).first << ": " << (*ii).second.shaderAddress << "\n";
+	   for(int i = 0; i < sizeof((*ii).second.shaderRegister); i++) {
+		   if((*ii).second.shaderRegister[i])
+			   ss << "      " << i << "\n";
+	   }
+   }
+	/////
+
+
 	ss << "Target changes: " << targets << "\n";
 	targets = 0;
 	ss << "\n\nValidRegisters> " << menueMethodItem << ", " << validRegisters[menueMethodItem] << "\n";
@@ -129,14 +148,8 @@ void D3DProxyDeviceTest::DisplayMethodsMenu()
 			ss << "\t\t" << i << ":" << registersUsed[i] << "\n";
 	}
 
-//	char out[2048];
-//	strcpy(out,ss.str().c_str());
-//	MessageBox(NULL,out,"D3DProxyDeviceAdv",MB_OK);
-/////
 
-//	sprintf_s(vcString, 512, "registerUsed: \n");
 
-//	sprintf_s(vcString, 512, "registerUsed: \n");
 	if(hudFont == NULL)
 		D3DXCreateFont( m_pDevice, 20, 0, FW_BOLD, 4, FALSE, DEFAULT_CHARSET, OUT_TT_ONLY_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &hudFont );
 	if(hudFont)
@@ -281,15 +294,42 @@ HRESULT WINAPI D3DProxyDeviceTest::SetVertexShaderConstantF(UINT StartRegister,C
 
 	if(stereoView->initialized && validVectorCount(Vector4fCount) && validRegister(StartRegister))
 	{
+
+		//////////
+
+		if(StartRegister < 256) {
+			IDirect3DVertexShader9 *ppShader = NULL;
+			m_pDevice->GetVertexShader(&ppShader);
+			(*ppShader).Release();
+			intptr_t shaderAddr = reinterpret_cast<intptr_t>(ppShader);
+
+			if(shaderList.count(shaderAddr) == 0) {
+				ShaderRegisterMap shaderRegMap;
+				shaderRegMap.shaderAddress = ppShader;
+				for(int i=0; i < sizeof(shaderRegMap.shaderRegister); i++)
+					shaderRegMap.shaderRegister[i] = false;
+				shaderRegMap.shaderRegister[StartRegister] = true;
+				shaderList[shaderAddr] = shaderRegMap;
+			}
+			shaderList[shaderAddr].matrix[0] = pConstantData[0];
+			shaderList[shaderAddr].matrix[1] = pConstantData[1];
+			shaderList[shaderAddr].matrix[2] = pConstantData[2];
+			shaderList[shaderAddr].matrix[3] = pConstantData[3];
+		}
+
+		//shaderList
 		currentMatrix = const_cast<float*>(pConstantData);
+		/////////
 
 		D3DXMATRIX sourceMatrix(currentMatrix);
 
-		D3DXMatrixTranspose(&sourceMatrix, &sourceMatrix);
+		if(transpose)
+			D3DXMatrixTranspose(&sourceMatrix, &sourceMatrix);
 			
 		sourceMatrix = sourceMatrix * matViewTranslation; 
 
-		D3DXMatrixTranspose(&sourceMatrix, &sourceMatrix);
+		if(transpose)
+			D3DXMatrixTranspose(&sourceMatrix, &sourceMatrix);
 
 		currentMatrix = (float*)sourceMatrix;
 
@@ -383,6 +423,19 @@ void D3DProxyDeviceTest::HandleControls()
 			keyWaitCount = 50;
 		}
 	}
+
+	if(KEY_DOWN(0x56) && menueDisplay)		//VK_KEY_V
+	{
+		if(keyWaitCount <= 0)
+		{
+			if(transpose)
+				transpose = false;
+			else
+				transpose = true;
+			keyWaitCount = 50;
+		}
+	}
+
 	if(KEY_DOWN(0x4E))		//VK_KEY_N
 	{
 		if(keyWaitCount <= 0)

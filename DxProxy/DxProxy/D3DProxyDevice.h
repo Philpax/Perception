@@ -29,9 +29,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
+#include <time.h>
 
 class StereoView;
-
+static int num_d3d = 0;
 class D3DProxyDevice : public BaseDirect3DDevice9
 {
 public:
@@ -70,7 +71,7 @@ public:
 	float b;	//Maximum y-value of the view volume
 
 	bool trackingOn;
-
+	
 	int eyeShutter;
 	int game_type;
 	float separation;
@@ -89,8 +90,9 @@ public:
 	StereoView* stereoView;
 	ID3DXFont *hudFont;
 
-	time_t lastInputTime;
-
+	clock_t lastInputTime;
+	double elapsedTime;
+	
 	MotionTracker* tracker;
 	bool trackerInitialized;
 	bool *m_keys;
@@ -120,6 +122,16 @@ public:
 		ADVANCED = 600,
 		ADVANCED_SKYRIM = 601
 	};
+
+	struct ShaderRegisterMap
+	{
+		void* shaderAddress;
+		bool shaderRegister[256];
+		float matrix[4];
+	};
+
+	//list<ShaderRegisterMap> shaderList;
+	std::map<intptr_t, ShaderRegisterMap> shaderList;
 };
 
 #endif
