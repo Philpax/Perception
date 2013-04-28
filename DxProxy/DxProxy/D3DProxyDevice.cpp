@@ -194,26 +194,26 @@ void D3DProxyDevice::HandleControls()
 	if(keybinds.CommandPressed(KeyBindings::SHOCT_L_DEC))
 	{
 		centerlineL  -= keySpeed2;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 	}
 	if(keybinds.CommandPressed(KeyBindings::SHOCT_L_INC))
 	{
 		centerlineL  += keySpeed2;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 	}
 
 	if(keybinds.CommandPressed(KeyBindings::SHOCT_R_DEC))
 	{
 		centerlineR  -= keySpeed2;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 	}
 	if(keybinds.CommandPressed(KeyBindings::SHOCT_R_INC))
 	{
 		centerlineR  += keySpeed2;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 	}
 
@@ -254,20 +254,20 @@ void D3DProxyDevice::HandleControls()
 	if(keybinds.CommandPressed(KeyBindings::OFFSET_INC))
 	{
 		offset += keySpeed;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 	}
 	if(keybinds.CommandPressed(KeyBindings::OFFSET_DEC))
 	{
 		offset -= keySpeed;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 	}
 
 	if(keybinds.CommandPressed(KeyBindings::SEPARATION_INC))
 	{
 		separation += keySpeed * 0.2f;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 	}
 	if(keybinds.CommandPressed(KeyBindings::SEPARATION_DEC))
@@ -275,21 +275,21 @@ void D3DProxyDevice::HandleControls()
 		separation -= keySpeed * 0.2f;
 		if(separation < 0)		// no negative seperation
 			separation = 0;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 	}
 
 	if(keybinds.CommandPressed(KeyBindings::DISTORTIONSCALE_INC))
 	{
 		stereoView->DistortionScale  += keySpeed*10;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 	}
 
 	if(keybinds.CommandPressed(KeyBindings::DISTORTIONSCALE_DEC))
 	{
 		stereoView->DistortionScale  -= keySpeed*10;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 	}
 
@@ -297,13 +297,13 @@ void D3DProxyDevice::HandleControls()
 	if(keybinds.CommandPressed(KeyBindings::CONVERGENCE_INC))
 	{
 		convergence += keySpeed2*10;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 	}
 	if(keybinds.CommandPressed(KeyBindings::CONVERGENCE_DEC))
 	{
 		convergence -= keySpeed2*10;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 	}
 
@@ -314,7 +314,7 @@ void D3DProxyDevice::HandleControls()
 			swap_eyes = !swap_eyes;
 			stereoView->SwapEyes(swap_eyes);
 			keyWaitCount = 0.25f;
-			saveWaitCount = 500;
+			saveWaitCount = 5;
 			doSaveNext = true;
 		}
 	}
@@ -328,7 +328,7 @@ void D3DProxyDevice::HandleControls()
 		pitch_multiplier = 25.0f;
 		roll_multiplier = 1.0f;
 		//matrixIndex = 0;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 	}
 	
@@ -345,7 +345,7 @@ void D3DProxyDevice::HandleControls()
 	if(keybinds.CommandPressed(KeyBindings::PITCH_MUL_INC))
 	{
 		pitch_multiplier += mouseSpeed;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 		if(trackerInitialized && tracker->isAvailable())
 			tracker->setMultipliers(yaw_multiplier, pitch_multiplier, roll_multiplier);
@@ -353,7 +353,7 @@ void D3DProxyDevice::HandleControls()
 	if(keybinds.CommandPressed(KeyBindings::PITCH_MUL_DEC))
 	{
 		pitch_multiplier -= mouseSpeed;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 		if(trackerInitialized && tracker->isAvailable())
 			tracker->setMultipliers(yaw_multiplier, pitch_multiplier, roll_multiplier);
@@ -362,7 +362,7 @@ void D3DProxyDevice::HandleControls()
 	if(keybinds.CommandPressed(KeyBindings::YAW_MUL_INC))
 	{
 		yaw_multiplier += mouseSpeed;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 		if(trackerInitialized && tracker->isAvailable())
 			tracker->setMultipliers(yaw_multiplier, pitch_multiplier, roll_multiplier);
@@ -370,7 +370,7 @@ void D3DProxyDevice::HandleControls()
 	if(keybinds.CommandPressed(KeyBindings::YAW_MUL_DEC))
 	{
 		yaw_multiplier -= mouseSpeed;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 		if(trackerInitialized && tracker->isAvailable())
 			tracker->setMultipliers(yaw_multiplier, pitch_multiplier, roll_multiplier);
@@ -379,7 +379,7 @@ void D3DProxyDevice::HandleControls()
 	if(keybinds.CommandPressed(KeyBindings::ROLL_MUL_INC))
 	{
 		roll_multiplier += mouseSpeed;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 		if(trackerInitialized && tracker->isAvailable())
 			tracker->setMultipliers(yaw_multiplier, pitch_multiplier, roll_multiplier);
@@ -387,7 +387,7 @@ void D3DProxyDevice::HandleControls()
 	if(keybinds.CommandPressed(KeyBindings::ROLL_MUL_DEC))
 	{
 		roll_multiplier -= mouseSpeed;
-		saveWaitCount = 500;
+		saveWaitCount = 5;
 		doSaveNext = true;
 		if(trackerInitialized && tracker->isAvailable())
 			tracker->setMultipliers(yaw_multiplier, pitch_multiplier, roll_multiplier);
@@ -406,7 +406,7 @@ void D3DProxyDevice::HandleControls()
 //		keyWaitCount = 200;
 //	}
 
-	if(doSaveNext && saveWaitCount < 0)
+	if(doSaveNext && saveWaitCount <= 0)
 	{
 		doSaveNext = false;
 		ProxyHelper* helper = new ProxyHelper();

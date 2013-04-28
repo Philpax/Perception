@@ -126,10 +126,15 @@ public:
 	struct ShaderRegisterMap
 	{
 		void* shaderAddress;
+
 		bool shaderRegister[256];
+		bool modifyRegister[256];
+		bool transposeRegister[256];
+
 		float matrix[4];
 	};
 
+	intptr_t target_shader;
 	//list<ShaderRegisterMap> shaderList;
 	std::map<intptr_t, ShaderRegisterMap> shaderList;
 };

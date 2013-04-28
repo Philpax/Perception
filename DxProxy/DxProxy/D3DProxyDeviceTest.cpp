@@ -35,6 +35,7 @@ D3DProxyDeviceTest::D3DProxyDeviceTest(IDirect3DDevice9* pDevice):D3DProxyDevice
 	vertexShaderConstantFMethod = 0;
 	menueMethodItem = 0;
 	transpose = 0;
+	target_shader = 0;
 
 	for(int i =0; i < sizeof(registersUsed); i++) {
 		registersUsed[i] = false;
@@ -117,8 +118,9 @@ void D3DProxyDeviceTest::DisplayMethodsMenu()
 	RECT rec2 = {255,10,800,800};
 
 	std::stringstream ss;
-	ss << "transpose:" << transpose << "\n";;
-
+	//ss << "transpose:" << transpose << "\n";;
+	ss << "target shader: " << target_shader << "\n";
+	ss << "     register: " << menueMethodItem << "\n";
 
 	/////
 	ss << "shaderList: " << shaderList.size() << "\n";
@@ -127,26 +129,27 @@ void D3DProxyDeviceTest::DisplayMethodsMenu()
 	   ss << "   " << (*ii).first << ": " << (*ii).second.shaderAddress << "\n";
 	   for(int i = 0; i < sizeof((*ii).second.shaderRegister); i++) {
 		   if((*ii).second.shaderRegister[i])
-			   ss << "      " << i << "\n";
+			   ss << "      " << i << ":" << (*ii).second.modifyRegister[i] << "," << (*ii).second.transposeRegister[i] << "\n";
+
 	   }
    }
 	/////
 
 
-	ss << "Target changes: " << targets << "\n";
-	targets = 0;
-	ss << "\n\nValidRegisters> " << menueMethodItem << ", " << validRegisters[menueMethodItem] << "\n";
-
-
+	//ss << "Target changes: " << targets << "\n";
+//	targets = 0;
+//	ss << "\n\nValidRegisters> " << menueMethodItem << ", " << validRegisters[menueMethodItem] << "\n";
+//
+//
 	ss << "transformMethod:" << transformMethod << "\n";
 
 
-	ss << "registersUsed :\n";
+//	ss << "registersUsed :\n";
 
-	for(int i =0; i < sizeof(registersUsed); i++) {
-		if(registersUsed[i])
-			ss << "\t\t" << i << ":" << registersUsed[i] << "\n";
-	}
+//	for(int i =0; i < sizeof(registersUsed); i++) {
+//		if(registersUsed[i])
+//			ss << "\t\t" << i << ":" << registersUsed[i] << "\n";
+//	}
 
 
 
@@ -292,22 +295,23 @@ HRESULT WINAPI D3DProxyDeviceTest::SetVertexShaderConstantF(UINT StartRegister,C
 
 //(fabs(pConstantData[12]) + fabs(pConstantData[13]) + fabs(pConstantData[14]) > 0.001f) from source  WTF?
 
-	if(stereoView->initialized && validVectorCount(Vector4fCount) && validRegister(StartRegister))
+	if(stereoView->initialized && validVectorCount(Vector4fCount))
 	{
-
 		//////////
+		IDirect3DVertexShader9 *ppShader = NULL;
+		m_pDevice->GetVertexShader(&ppShader);
+		(*ppShader).Release();
+		intptr_t shaderAddr = reinterpret_cast<intptr_t>(ppShader);
 
 		if(StartRegister < 256) {
-			IDirect3DVertexShader9 *ppShader = NULL;
-			m_pDevice->GetVertexShader(&ppShader);
-			(*ppShader).Release();
-			intptr_t shaderAddr = reinterpret_cast<intptr_t>(ppShader);
-
 			if(shaderList.count(shaderAddr) == 0) {
 				ShaderRegisterMap shaderRegMap;
 				shaderRegMap.shaderAddress = ppShader;
-				for(int i=0; i < sizeof(shaderRegMap.shaderRegister); i++)
+				for(int i=0; i < sizeof(shaderRegMap.shaderRegister); i++) {
 					shaderRegMap.shaderRegister[i] = false;
+					shaderRegMap.modifyRegister[i] = false;
+					shaderRegMap.transposeRegister[i] = false;
+				}
 				shaderRegMap.shaderRegister[StartRegister] = true;
 				shaderList[shaderAddr] = shaderRegMap;
 			}
@@ -321,19 +325,21 @@ HRESULT WINAPI D3DProxyDeviceTest::SetVertexShaderConstantF(UINT StartRegister,C
 		currentMatrix = const_cast<float*>(pConstantData);
 		/////////
 
-		D3DXMATRIX sourceMatrix(currentMatrix);
+		if(shaderList[shaderAddr].modifyRegister[StartRegister]) {
+			D3DXMATRIX sourceMatrix(currentMatrix);
 
-		if(transpose)
-			D3DXMatrixTranspose(&sourceMatrix, &sourceMatrix);
+			if(shaderList[shaderAddr].transposeRegister[StartRegister])
+				D3DXMatrixTranspose(&sourceMatrix, &sourceMatrix);
 			
-		sourceMatrix = sourceMatrix * matViewTranslation; 
+			sourceMatrix = sourceMatrix * matViewTranslation; 
 
-		if(transpose)
-			D3DXMatrixTranspose(&sourceMatrix, &sourceMatrix);
+			if(shaderList[shaderAddr].transposeRegister[StartRegister])
+				D3DXMatrixTranspose(&sourceMatrix, &sourceMatrix);
 
-		currentMatrix = (float*)sourceMatrix;
+			currentMatrix = (float*)sourceMatrix;
 
-		return D3DProxyDevice::SetVertexShaderConstantF(StartRegister, currentMatrix, Vector4fCount);
+			return D3DProxyDevice::SetVertexShaderConstantF(StartRegister, currentMatrix, Vector4fCount);
+		}
 	}
 
 	return D3DProxyDevice::SetVertexShaderConstantF(StartRegister, pConstantData, Vector4fCount);
@@ -449,44 +455,93 @@ void D3DProxyDeviceTest::HandleControls()
 	}
 
 
-	if(KEY_DOWN(VK_RIGHT) && menueDisplay)
+//	if(KEY_DOWN(VK_RIGHT) && menueDisplay)
+	if(KEY_DOWN(VK_NUMPAD6) && menueDisplay)
 	{
 		if(keyWaitCount <= 0)
 		{
-			if(menueMethod == 0) {
-				menueMethodItem++;
-				if(menueMethodItem >= sizeof(validRegisters))
-					menueMethodItem = 0;
+			for(int i=menueMethodItem; i < 256; i++) {
+				if(shaderList[target_shader].shaderRegister[i]) {
+					menueMethodItem = i;
+					break;
+				}
+			}
+		}
+		keyWaitCount = 50;
+	}
+//	if(KEY_DOWN(VK_LEFT) && menueDisplay)
+	if(KEY_DOWN(VK_NUMPAD4) && menueDisplay)
+	{
+		if(keyWaitCount <= 0)
+		{
+			for(int i=menueMethodItem; i >= 0; i--) {
+				if(shaderList[target_shader].shaderRegister[i]) {
+					menueMethodItem = i;
+					break;
+				}
+			}
+		}
+		keyWaitCount = 50;
+	}
+	if(KEY_DOWN(VK_NUMPAD2) && menueDisplay)
+	{
+		if(keyWaitCount <= 0)
+		{
+			std::map<intptr_t,ShaderRegisterMap>::iterator ii = shaderList.find(target_shader);
+			ii++;
+			if(ii == shaderList.end())
+				ii--;
+			target_shader = (*ii).first;
+			for(int i=0; i < 256; i++) {
+				if(shaderList[target_shader].shaderRegister[i]) {
+					menueMethodItem = i;
+					break;
+				}
 			}
 			keyWaitCount = 50;
 		}
 	}
-	if(KEY_DOWN(VK_LEFT) && menueDisplay)
+	if(KEY_DOWN(VK_NUMPAD8) && menueDisplay)
 	{
 		if(keyWaitCount <= 0)
 		{
-			if(menueMethod == 0) {
-				menueMethodItem--;
-				if(menueMethodItem < 0 )
-					menueMethodItem = sizeof(validRegisters) -1;
-			}
-			keyWaitCount = 50;
-		}
-	}
-	if(KEY_DOWN(VK_SPACE) && menueDisplay)
-	{
-		if(keyWaitCount <= 0)
-		{
-			if(menueMethod == 0) {
-				if(validRegisters[menueMethodItem])
-					validRegisters[menueMethodItem] = false;
-				else
-					validRegisters[menueMethodItem] = true;
+			std::map<intptr_t,ShaderRegisterMap>::iterator ii = shaderList.find(target_shader);
+			if(ii != shaderList.begin())
+				ii--;
+			target_shader = (*ii).first;
+			for(int i=0; i < 256; i++) {
+				if(shaderList[target_shader].shaderRegister[i]) {
+					menueMethodItem = i;
+					break;
+				}
 			}
 			keyWaitCount = 50;
 		}
 	}
 
+	if(KEY_DOWN(VK_NUMPAD5) && menueDisplay)
+	{
+		if(keyWaitCount <= 0)
+		{
+			if(shaderList[target_shader].modifyRegister[menueMethodItem])
+				shaderList[target_shader].modifyRegister[menueMethodItem] = false;
+			else
+				shaderList[target_shader].modifyRegister[menueMethodItem] = true;
+			keyWaitCount = 50;
+		}
+	}
+
+	if(KEY_DOWN(VK_NUMPAD7) && menueDisplay)
+	{
+		if(keyWaitCount <= 0)
+		{
+			if(shaderList[target_shader].transposeRegister[menueMethodItem])
+				shaderList[target_shader].transposeRegister[menueMethodItem] = false;
+			else
+				shaderList[target_shader].transposeRegister[menueMethodItem] = true;
+			keyWaitCount = 50;
+		}
+	}
 
 	D3DProxyDevice::HandleControls();
 
