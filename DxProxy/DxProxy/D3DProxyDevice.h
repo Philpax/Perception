@@ -96,7 +96,6 @@ public:
 	float centerlineR;
 	float centerlineL;
 
-
 	static enum ProxyTypes
 	{
 		MONO = 0,
