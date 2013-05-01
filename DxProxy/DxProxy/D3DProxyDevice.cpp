@@ -432,11 +432,9 @@ void D3DProxyDevice::HandleControls()
 	if(doSaveNext && saveWaitCount < 0)
 	{
 		doSaveNext = false;
-		ProxyHelper* helper = new ProxyHelper();
-		helper->SaveProfile(separation, convergence, swap_eyes, yaw_multiplier, pitch_multiplier, roll_multiplier);
-		helper->SaveUserConfig(centerlineL, centerlineR);
+		proxy_helper.SaveProfile(separation, convergence, swap_eyes, yaw_multiplier, pitch_multiplier, roll_multiplier);
+		proxy_helper.SaveUserConfig(centerlineL, centerlineR);
 	}
-
 }
 
 void D3DProxyDevice::HandleTracking()
