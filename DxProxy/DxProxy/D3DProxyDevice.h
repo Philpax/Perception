@@ -84,6 +84,7 @@ public:
 	float aspectRatio;
 	bool swap_eyes;
 	ProxyHelper::ProxyConfig config;
+	ProxyHelper proxy_helper;
 	int matrixIndex;
 	bool saveDebugFile;
 	std::ofstream debugFile;
