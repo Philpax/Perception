@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PROXYHELPER_H_INCLUDED
 #define PROXYHELPER_H_INCLUDED
 
+#include <windows.h>
+
 class ProxyHelper
 {
 public:
@@ -38,6 +40,8 @@ public:
 		float roll_multiplier;
 		float centerlineR;// to be used as IPD
 		float centerlineL;
+		bool proxy_enabled;
+		char proxy_dll[MAX_PATH+64];
 	};
 
 	bool LoadConfig(ProxyConfig& config);

@@ -125,6 +125,7 @@ bool ProxyHelper::LoadConfig(ProxyConfig& config)
 	config.convergence = 0.0f;
 	config.swap_eyes = false;
 	config.aspect_multiplier = 1.0f;
+	config.proxy_enabled = false;
 
 	// load the base dir for the app
 	GetBaseDir();
@@ -206,6 +207,9 @@ bool ProxyHelper::LoadConfig(ProxyConfig& config)
 		config.yaw_multiplier = gameProfile.attribute("yaw_multiplier").as_float();
 		config.pitch_multiplier = gameProfile.attribute("pitch_multiplier").as_float();
 		config.roll_multiplier = gameProfile.attribute("roll_multiplier").as_float();
+		config.proxy_enabled = gameProfile.attribute("proxy_enabled").as_bool();
+
+		strcpy_s( config.proxy_dll, gameProfile.attribute("proxy_dll").as_string() );
 	}
 
 	LoadUserConfig(config);
