@@ -23,13 +23,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ProxyHelper.h"
 #include "StereoView.h"
 #include "MotionTracker.h"
+#include "KeyBindings.h"
+
 #include <d3dx9.h>
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
+#include <time.h>
 
 class StereoView;
-
+static int num_d3d = 0;
 class D3DProxyDevice : public BaseDirect3DDevice9
 {
 public:
@@ -42,7 +45,7 @@ public:
 	void SetupMatrices();
 	void ComputeViewTranslation();
 	void SetupText();
-	void HandleControls(void);
+	virtual void HandleControls(void);
 	void HandleTracking(void);
 	bool validRegister(UINT reg);
 	virtual HRESULT WINAPI EndScene();
@@ -68,7 +71,7 @@ public:
 	float b;	//Maximum y-value of the view volume
 
 	bool trackingOn;
-
+	
 	int eyeShutter;
 	int game_type;
 	float separation;
@@ -88,14 +91,18 @@ public:
 	StereoView* stereoView;
 	ID3DXFont *hudFont;
 
-	time_t lastInputTime;
-
+	clock_t lastInputTime;
+	double elapsedTime;
+	
 	MotionTracker* tracker;
 	bool trackerInitialized;
 	bool *m_keys;
 	int SHOCT_mode;
 	float centerlineR;
 	float centerlineL;
+
+	KeyBindings keybinds;
+
 
 	static enum ProxyTypes
 	{
@@ -116,6 +123,21 @@ public:
 		ADVANCED = 600,
 		ADVANCED_SKYRIM = 601
 	};
+
+	struct ShaderRegisterMap
+	{
+		void* shaderAddress;
+
+		bool shaderRegister[256];
+		bool modifyRegister[256];
+		bool transposeRegister[256];
+
+		float matrix[4];
+	};
+
+	intptr_t target_shader;
+	//list<ShaderRegisterMap> shaderList;
+	std::map<intptr_t, ShaderRegisterMap> shaderList;
 };
 
 #endif

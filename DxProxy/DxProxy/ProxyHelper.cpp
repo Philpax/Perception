@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <windows.h>
 #include "pugixml.hpp"
+#include "KeyBindings.h"
 
 using namespace pugi;
 
@@ -381,7 +382,6 @@ bool ProxyHelper::SaveConfig2(int mode)
 }
 
 
-
 bool ProxyHelper::LoadUserConfig(ProxyConfig& config)
 {
 	config.centerlineL = 0.0f;
@@ -397,8 +397,6 @@ bool ProxyHelper::LoadUserConfig(ProxyConfig& config)
 	xml_parse_result resultUsers = docUsers.load_file(usersPath);
 	xml_node users;
 	xml_node userProfile;
-	
-
 
 	if(resultUsers.status == status_ok)
 	{

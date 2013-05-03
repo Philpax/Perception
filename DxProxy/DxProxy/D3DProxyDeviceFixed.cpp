@@ -35,7 +35,7 @@ void D3DProxyDeviceFixed::Init(ProxyHelper::ProxyConfig& cfg)
 HRESULT WINAPI D3DProxyDeviceFixed::BeginScene()
 {
 	HandleControls();
-//	HandleTracking();
+	HandleTracking();
 	ComputeViewTranslation();
 
 	return D3DProxyDevice::BeginScene();
@@ -48,7 +48,7 @@ HRESULT WINAPI D3DProxyDeviceFixed::EndScene()
 
 HRESULT WINAPI D3DProxyDeviceFixed::Present(CONST RECT* pSourceRect,CONST RECT* pDestRect,HWND hDestWindowOverride,CONST RGNDATA* pDirtyRegion)
 {
-	HandleTracking();
+//	HandleTracking();
 
 	if(stereoView->initialized && stereoView->stereoEnabled)
 	{

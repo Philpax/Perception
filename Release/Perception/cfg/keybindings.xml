@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<bindings>
+
+  <binding command="SAVE_SCREEN" vk="VK_F1" shift="false" ctrl="false" alt="false" />
+    
+  <binding command="SEPARATION_INC" vk="VK_F3" shift="false" ctrl="false" alt="false" />
+  <binding command="SEPARATION_DEC" vk="VK_F2" shift="false" ctrl="false" alt="false" />
+  <binding command="CONVERGENCE_INC" vk="VK_F5" shift="false" ctrl="false" alt="false" />
+  <binding command="CONVERGENCE_DEC" vk="VK_F4" shift="false" ctrl="false" alt="false" />
+
+  <binding command="OFFSET_INC" vk="VK_F3" shift="true" ctrl="false" alt="false" />
+  <binding command="OFFSET_DEC" vk="VK_F2" shift="true" ctrl="false" alt="false" />
+  <binding command="DISTORTIONSCALE_INC" vk="VK_F5" shift="true" ctrl="false" alt="false" />
+  <binding command="DISTORTIONSCALE_DEC" vk="VK_F4" shift="true" ctrl="false" alt="false" />
+  
+  <binding command="SWAP_EYES" vk="VK_F6" shift="false" ctrl="false" alt="false" />
+  <binding command="DEFAULT_VALUES" vk="VK_F6" shift="true" ctrl="false" alt="false" />
+  
+  <binding command="PITCH_MUL_INC" vk="VK_F9" shift="true" ctrl="false" alt="false" />
+  <binding command="PITCH_MUL_DEC" vk="VK_F8" shift="true" ctrl="false" alt="false" />
+  <binding command="YAW_MUL_INC" vk="VK_F9" shift="false" ctrl="false" alt="false" />
+  <binding command="YAW_MUL_DEC" vk="VK_F8" shift="false" ctrl="false" alt="false" />
+  <binding command="ROLL_MUL_INC" vk="VK_F9" shift="false" ctrl="true" alt="false" />
+  <binding command="ROLL_MUL_DEC" vk="VK_F8" shift="false" ctrl="true" alt="false" />
+  
+  <binding command="STEREO_ENABLED_T" vk="VK_NUMPAD0" shift="false" ctrl="false" alt="false" />
+
+  <binding command="SHOCT_L_INC" vk="VK_KEY_P" shift="false" ctrl="false" alt="false" />
+  <binding command="SHOCT_L_DEC" vk="VK_KEY_O" shift="false" ctrl="false" alt="false" />
+  <binding command="SHOCT_R_INC" vk="VK_KEY_L" shift="false" ctrl="false" alt="false" />
+  <binding command="SHOCT_R_DEC" vk="VK_KEY_K" shift="false" ctrl="false" alt="false" />
+  <binding command="SHOCT_MODE_T" vk="VK_KEY_I" shift="false" ctrl="true" alt="false" />
+
+  <binding command="SCREEN_OFFSET_INC" vk="VK_F3" shift="false" ctrl="true" alt="false" />
+  <binding command="SCREEN_OFFSET_DEC" vk="VK_F2" shift="false" ctrl="true" alt="false" />
+
+  <!-- numpad SHOCT
+  <binding command="SHOCT_L_INC" vk="VK_NUMPAD2" shift="false" ctrl="false" alt="false" />
+  <binding command="SHOCT_L_DEC" vk="VK_NUMPAD1" shift="false" ctrl="false" alt="false" />
+  <binding command="SHOCT_R_INC" vk="VK_NUMPAD5" shift="false" ctrl="false" alt="false" />
+  <binding command="SHOCT_R_DEC" vk="VK_NUMPAD4" shift="false" ctrl="false" alt="false" />
+  <binding command="SHOCT_MODE_T" vk="VK_MULTIPLY" shift="true" ctrl="false" alt="false" />
+-->  
+</bindings>

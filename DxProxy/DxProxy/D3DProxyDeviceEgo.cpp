@@ -79,10 +79,8 @@ HRESULT WINAPI D3DProxyDeviceEgo::Present(CONST RECT* pSourceRect,CONST RECT* pD
 
 HRESULT WINAPI D3DProxyDeviceEgo::SetVertexShaderConstantF(UINT StartRegister,CONST float* pConstantData,UINT Vector4fCount)
 {
-	
 	if(stereoView->initialized && Vector4fCount >= 4 && validRegister(StartRegister)) // && (fabs(pConstantData[12]) + fabs(pConstantData[13]) + fabs(pConstantData[14]) > 0.001f))
 	{
-		
 		currentMatrix = const_cast<float*>(pConstantData);
 
 		D3DXMATRIX sourceMatrix(currentMatrix);
