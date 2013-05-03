@@ -56,7 +56,24 @@ static bool LoadDll()
 	GetSystemDirectory(szBuff, sizeof(szBuff));
 	szBuff[MAX_PATH] = 0;
 	strcat(szBuff, "\\d3d9.dll");
+	ProxyHelper helper;
+	ProxyHelper::ProxyConfig cfg;
+
+	if (helper.LoadConfig(cfg) && cfg.proxy_enabled)
+	{
+		strcpy_s( szBuff, cfg.proxy_dll );
+
+		// If our proxy path doesn't exist, then load up the default again
+		if (GetFileAttributes(szBuff) == 0xFFFFFFFF)
+		{
+			GetSystemDirectory(szBuff, sizeof(szBuff));
+			szBuff[MAX_PATH] = 0;
+			strcat(szBuff, "\\d3d9.dll");
+		}
+	}
+
 	g_hDll = LoadLibrary(szBuff);
+
 	if(!g_hDll)
 		return false;
 
