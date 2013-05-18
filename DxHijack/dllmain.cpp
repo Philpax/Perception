@@ -1,0 +1,240 @@
+/********************************************************************
+Vireio Perception: Open-Source Stereoscopic 3D Driver
+Copyright (C) 2012 Andres Hernandez
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+********************************************************************/
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <shlwapi.h>
+#include <d3d9.h>
+#include <d3dx9.h>
+#include "hijackdll.h"
+#include "apihijack.h"
+#include "Direct3D9.h"
+#include <string>
+#include <TlHelp32.h>
+
+// Text buffer for sprintf
+char targetExe[256];
+char targetPath[256];
+char lastExe[256];
+std::string targetPathString;
+
+LPCSTR realDll = "D3D9.DLL";
+LPCWSTR realDllW = L"D3D9.DLL";
+LPCSTR proxyDll = NULL;
+LPCWSTR proxyDllW = NULL;
+LPCSTR dllDir = NULL;
+
+HINSTANCE hDLL;
+
+typedef HMODULE (WINAPI *LoadLibraryExW_Type)(LPCWSTR lpFileName, HANDLE hFile, DWORD dwFlags);   
+
+HMODULE WINAPI MyLoadLibraryExW(LPCWSTR lpFileName, HANDLE hFile, DWORD dwFlags);   
+
+typedef IDirect3D9* (WINAPI *Direct3DCreate9_t)(UINT sdk_version);
+IDirect3D9* WINAPI MyDirect3DCreate9(UINT sdk_version);
+
+#define CREATE_THREAD_ACCESS (PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ) 
+
+void ParsePaths();
+void SaveExeName(char*);
+
+// Hook structure.
+enum
+{
+    KERNEL32_LoadLibraryExW = 3
+};
+
+enum
+{
+    D3DFN_Direct3DCreate9 = 0
+};
+
+SDLLHook KernelHook = 
+{
+    "KERNEL32.DLL",
+    false, NULL,		// Default hook disabled, NULL function pointer.
+    {
+        { "LoadLibraryExW", MyLoadLibraryExW },   
+        { NULL, NULL }
+    }
+};
+
+SDLLHook D3DHook = 
+{
+    "D3D9.DLL",
+    false, NULL,		// Default hook disabled, NULL function pointer.
+    {
+		{ "Direct3DCreate9", MyDirect3DCreate9},
+        { NULL, NULL }
+    }
+};
+  
+HMODULE WINAPI MyLoadLibraryExW(LPCWSTR lpFileName, HANDLE hFile, DWORD dwFlags)   
+{   
+    // Get the old function    
+    LoadLibraryExW_Type OldFn = (LoadLibraryExW_Type)KernelHook.Functions[KERNEL32_LoadLibraryExW].OrigFn;    
+   
+    // A Place to store the module, that is returned    
+    HMODULE retval;
+
+	if(lstrcmpiW(lpFileName, realDllW) == 0)
+	{
+		lpFileName = proxyDllW;
+		LogF( "[LoadLibraryExW] Substituting proxy DLL: %s", proxyDll );
+	} 
+   
+    // Time to call the original function    
+    retval = OldFn(lpFileName, hFile, dwFlags);    
+   
+    //HookAPICalls(&KernelHook, retval);    
+       
+    return retval;   
+}   
+
+IDirect3D9* WINAPI MyDirect3DCreate9(UINT sdk_version)
+{
+	Log( "[Direct3DCreate9] Hooking creation" );
+
+	Direct3DCreate9_t old_func = (Direct3DCreate9_t) D3DHook.Functions[D3DFN_Direct3DCreate9].OrigFn;
+	IDirect3D9* d3d = old_func(sdk_version);
+	
+	return d3d ? new BaseDirect3D9(d3d) : 0;
+}
+
+DWORD WINAPI MainThread( void *param )
+{
+    // Only hook the APIs if this is the right process.
+    GetModuleFileName(GetModuleHandle(NULL), targetExe, sizeof(targetExe));
+    PathStripPath(targetExe);
+
+	GetModuleFileName(GetModuleHandle(NULL), targetPath, sizeof(targetPath));
+	targetPathString = std::string(targetPath);
+	targetPathString = targetPathString.substr(0, targetPathString.find_last_of("\\/"));
+
+	ParsePaths();
+	ProxyHelper helper = ProxyHelper();
+
+	if (helper.GetProfile(targetExe).first)
+	{
+		LogF( "[DxHijack] Found profile for %s", targetExe );
+
+		if (HookAPICalls(&D3DHook))
+		{
+			Log( "[DxHijack] Hooked D3D calls" );
+		} 
+		else if(HookAPICalls(&KernelHook))
+		{	
+			Log( "[DxHijack] Hooked kernel calls" );
+		} 
+		else 
+		{
+			Log( "[DxHijack] Hooked no calls" );
+		}
+
+		SetDllDirectory(dllDir);			
+		SaveExeName(targetExe);
+	}
+
+	return true;
+}
+
+// CBT Hook-style injection.
+BOOL APIENTRY DllMain( HINSTANCE hModule, DWORD fdwReason, LPVOID lpReserved )
+{
+    if (fdwReason == DLL_PROCESS_ATTACH)  // When initializing....
+    {
+        hDLL = hModule;
+
+		DisableThreadLibraryCalls( hModule );
+        CreateThread( 0, 0, MainThread, 0, 0, 0 ); 
+    }
+
+    return TRUE;
+}
+
+// This segment must be defined as SHARED in the .DEF
+#pragma data_seg (".HookSection")		
+// Shared instance for all processes.
+HHOOK hHook = NULL;	
+#pragma data_seg ()
+
+HIJACKDLL_API LRESULT CALLBACK HookProc(int nCode, WPARAM wParam, LPARAM lParam) 
+{
+    return CallNextHookEx(hHook, nCode, wParam, lParam); 
+}
+
+HIJACKDLL_API void InstallHook()
+{
+    Log( "[DxHijack] Hook installed" );
+    hHook = SetWindowsHookEx( WH_CBT, HookProc, hDLL, 0 ); 
+}
+
+HIJACKDLL_API void RemoveHook()
+{
+    Log( "[DxHijack] Hook removed" );
+    UnhookWindowsHookEx( hHook );
+}
+
+void ParsePaths()
+{
+	dllDir = (LPCSTR)malloc(512*sizeof(char));
+	proxyDll = (LPCSTR)malloc(512*sizeof(char));
+	proxyDllW = (LPCWSTR)malloc(512*sizeof(wchar_t));
+
+	ProxyHelper helper = ProxyHelper();
+	helper.GetPath((char*)dllDir, "bin\\");
+	helper.GetPath((char*)proxyDll, "bin\\d3d9.dll");
+	mbstowcs_s(NULL, (wchar_t*)proxyDllW, 512, proxyDll, 512);
+}
+
+void SaveExeName(char* data)
+{
+	HKEY hKey;
+	LPCTSTR sk = TEXT("SOFTWARE\\Vireio\\Perception");
+
+	char errorBuffer[512];
+
+	HRESULT hr = RegOpenKeyEx(HKEY_CURRENT_USER, sk, 0, KEY_ALL_ACCESS , &hKey);
+
+	if (hr != ERROR_SUCCESS)
+	{
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, hr, NULL, errorBuffer, 512, NULL );
+
+		LogF( "[SaveExeName] Error opening registry key: %s", errorBuffer );
+	}
+
+	LPCTSTR value = TEXT("TargetExe");
+
+	hr = RegSetValueEx(hKey, value, 0, REG_SZ, (LPBYTE)data, strlen(data)+1);
+
+	if (hr != ERROR_SUCCESS)
+	{
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, hr, NULL, errorBuffer, 512, NULL );
+
+		LogF( "[SaveExeName] Error writing to registry: %s", errorBuffer );
+	}
+
+	hr = RegCloseKey(hKey);
+
+	if (hr != ERROR_SUCCESS)
+	{
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, hr, NULL, errorBuffer, 512, NULL );
+
+		LogF( "[SaveExeName] Error closing registry key: %s", errorBuffer );
+	}
+}
